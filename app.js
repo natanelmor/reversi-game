@@ -82,11 +82,6 @@ var reversi = {
         
         // set initial score
         this.setScore(2, 2);
-        
-        
-      
-		
-	
     },
     
     passTurn: function() {
