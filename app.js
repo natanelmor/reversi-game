@@ -9,13 +9,15 @@ var reversi = {
     states: {
         'blank': { 'id' : 0, 'color': 'white' },
         'white': { 'id' : 1, 'color': 'white' },
-        'black': { 'id' : 2, 'color': 'black' }
+        'black': { 'id' : 2, 'color': 'black' },
+        'red': { 'id' : 3, 'color': 'red' },
+        'green': { 'id' : 4, 'color': 'green' }
     },
 	turn: null,
 
 
 
-    
+
     init: function(selector) {
         
         this.father = document.getElementById(selector);
@@ -113,7 +115,7 @@ var reversi = {
     
     isVisible: function(state) {
         
-        return (state.id === this.states.white.id || state.id === this.states.black.id);
+        return (state.id === this.states.white.id || state.id === this.states.black.id|| state.id === this.states.red.id|| state.id === this.states.green.id);
     },
     
     isVisibleItem: function(row, col) {
@@ -177,6 +179,7 @@ var reversi = {
                 tr.appendChild(td);
                 
                 // bind move action to onclick event on each item
+                //this.colormove(td, i, j);
                 this.bindMove(td, i, j);
                 
                 // we are also storing html element for better manipulation later
@@ -330,13 +333,12 @@ var reversi = {
 	},
     
     isValidMove: function(row, col) {
-        
         var current = this.turn,
             rowCheck,
             colCheck,
             toCheck = (current.id === this.states.black.id) ? this.states.white : this.states.black;
             
-        if ( ! this.isValidPosition(row, col) || this.isVisibleItem(row, col)) {
+        if (!this.isValidPosition(row, col) || (this.isVisibleItem(row, col)) && !(this.grid[row][col].state === this.states.green)) {
             
             return false;
         }
@@ -355,7 +357,6 @@ var reversi = {
                 // move to next item
                 rowCheck = row + rowDir;
                 colCheck = col + colDir;
-                
                 // were any items found ?
                 var itemFound = false;
                 
@@ -403,12 +404,60 @@ var reversi = {
         
         return false;
     },
+/*
+    colormove: function(elem, row, col) {
+        
+        var self = this;
+            current = this.turn,
+            currentcolor = (current.id === this.states.black.id) ? this.states.black : this.states.white;
+
+        elem.onmouseover= function(event) {
+                
+                // if have a valid move
+                if (((!self.isValidMove(row, col)) || (!this.isValidPosition(row, col)) )&& (this.isVisibleItem(row, col))) {       
+                    currentcolor= this.states.red;
+                    }
+            //this.setItemState(row, col, currentcolor);
+        };
+    },
+*/
+    colortoken: function(row, col){
+        var self = this;
+            current = this.turn,
+            currentcolor = (current.id === this.states.black.id) ?  this.states.black: this.states.white;
+
+            if (((!self.isValidMove(row, col)) || (!this.isValidPosition(row, col))) && (!this.isVisibleItem(row, col))) {       
+                this.mouseColor(row, col,this.states.red);
+                }
+            if(self.isValidMove(row, col)){
+                //currentcolor=  this.states.blue;
+                this.mouseColor(row, col,this.states.green);
+            }
+
+    },
+
+    hiddetoken: function(row, col){
+        if (this.grid[row][col].state===this.states.red || this.grid[row][col].state===this.states.green ) { 
+            this.grid[row][col].state = this.states.blank;
+            this.grid[row][col].elem.style.visibility = 'hidden';
+            this.grid[row][col].elem.style.backgroundColor =this.states.blank.color;
+        }
+    },
+
+    mouseColor: function(row, col,state){
+
+        this.grid[row][col].state = state;
+        this.grid[row][col].elem.style.visibility = this.isVisible(state) ? 'visible' : 'hidden';
+        this.grid[row][col].elem.style.backgroundColor = state.color;
+
+    },
+
     
     bindMove: function(elem, row, col) {
         
         var self = this;
-        
-        elem.onclick = function(event) {
+               
+        elem.onclick= function(event) {
             
             if (self.canMove()) {
                 
@@ -438,6 +487,13 @@ var reversi = {
                 }
             }
         };
+        elem.onmouseover= function(event) {
+                self.colortoken(row, col);
+        };
+        elem.onmouseout= function(event) {
+                self.hiddetoken(row, col);
+        };
+        
     },
     
     endGame: function() {
@@ -527,7 +583,8 @@ var reversi = {
                 // look for valid items
                 // look for visible items
                 // look for items with opposite color
-                while (this.isValidPosition(rowCheck, colCheck) && this.isVisibleItem(rowCheck, colCheck) && this.grid[rowCheck][colCheck].state.id === toCheck.id) {
+                while (this.isValidPosition(rowCheck, colCheck) && this.isVisibleItem(rowCheck, colCheck) 
+                        && (this.grid[rowCheck][colCheck].state.id === toCheck.id)) {
                     
                     possibleItems.push([rowCheck, colCheck]);
                     
