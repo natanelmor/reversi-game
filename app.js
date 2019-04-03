@@ -380,6 +380,7 @@ var reversi = {
             rowCheck,
             colCheck;
         
+            
        this.ticktock();
             
         //check if there is no current turn color in the borad --> end the game
