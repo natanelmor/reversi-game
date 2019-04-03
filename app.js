@@ -6,17 +6,16 @@ var reversi = {
     rows: 10,
     cols: 10,
     grid: [],
+    timeBlack: [],
+    timeWhite: [],
     states: {
-        'blank': { 'id' : 0, 'color': 'white' },
-        'white': { 'id' : 1, 'color': 'white' },
+        'blank': { 'id' : 0, 'color': 'white', time : [] },
+        'white': { 'id' : 1, 'color': 'white', time : [] },
         'black': { 'id' : 2, 'color': 'black' },
         'red': { 'id' : 3, 'color': 'red' },
         'green': { 'id' : 4, 'color': 'green' }
     },
 	turn: null,
-
-
-
 
     init: function(selector) {
         
@@ -88,16 +87,18 @@ var reversi = {
     
     passTurn: function() {
     
-        var turn = (this.turn.id === this.states.black.id) ? this.states.white : this.states.black;
+        var turn = (this.turn.id === this.states.black.id) ? this.states.white : this.states.black,
+        d1 = new Date();
+
+        this.setTurn(turn);	
         
-		this.setTurn(turn);
-		
+        turn.time.push(d1);
     },
     
     setTurn: function(state) {
         
         this.turn = state;
-        
+
         var isBlack = (state.id === this.states.black.id);
         
         this.score.black.elem.style.textDecoration = isBlack ? 'underline': '';
@@ -291,7 +292,6 @@ var reversi = {
 
 	},
 	
-    
     setScore: function(scoreBlack, scoreWhite) {
         
         this.score.black.state = scoreBlack;
@@ -299,6 +299,7 @@ var reversi = {
 
         this.score.black.elem.innerHTML = '&nbsp;' + scoreBlack + '&nbsp;';
         this.score.white.elem.innerHTML = '&nbsp;' + scoreWhite + '&nbsp;';
+
     },
     
     setTwoDisc: function(){
@@ -357,40 +358,85 @@ var reversi = {
                 // move to next item
                 rowCheck = row + rowDir;
                 colCheck = col + colDir;
-                // were any items found ?
-                var itemFound = false;
+          
                 
-                // look for valid items
-                // look for visible items
-                // look for items with opposite color
-                while (this.isValidPosition(rowCheck, colCheck) && this.isVisibleItem(rowCheck, colCheck) && this.grid[rowCheck][colCheck].state.id === toCheck.id) {
+             
+                while (this.isValidPosition(rowCheck, colCheck) && this.isVisibleItem(rowCheck, colCheck)) {
                     
-                    // move to next position
-                    rowCheck += rowDir;
-                    colCheck += colDir;
-                    
-                    // item found
-                    itemFound = true; 
+                    return true;
+              
                 }
-                
-                // if some items were found
-                if (itemFound) {
-
-                    // now we need to check that the next item is one of ours
-                    if (this.isValidPosition(rowCheck, colCheck) && this.isVisibleItem(rowCheck, colCheck) && this.grid[rowCheck][colCheck].state.id === current.id) {
-                        
-                        // we have a valid move
-                        return true;
-                    }
-                }
+           
             }
         }
         
         return false;
     },
     
-    canMove: function() {
+       
+    isValidClick: function(row, col) {
+
+        var current = this.turn,
+            rowCheck,
+            colCheck;
         
+       this.ticktock();
+            
+        //check if there is no current turn color in the borad --> end the game
+        if(this.score.black.state === 0 || this.score.white.state === 0){
+            this.endGame();
+        }   
+            
+        if (!this.isValidPosition(row, col) || (this.isVisibleItem(row, col)) && !(this.grid[row][col].state === this.states.green)) {
+            
+            return false;
+        }
+        
+        // check all eight directions
+        for (var rowDir = -1; rowDir <= 1; rowDir++) {
+            
+            for (var colDir = -1; colDir <= 1; colDir++) {
+                
+                // dont check the actual position
+                if (rowDir === 0 && colDir === 0) {
+                    
+                    continue;
+                }
+                
+                // move to next item
+                rowCheck = row + rowDir;
+                colCheck = col + colDir;
+                // were any items found ?
+                var itemFound = false;
+                
+            
+                while (this.isValidPosition(rowCheck, colCheck) && this.isVisibleItem(rowCheck, colCheck)) {
+                    
+                    this.setItemState(row, col, current);
+                  
+                    return true;
+                
+                }
+              
+            }
+        }
+        
+        return false;
+    },
+
+    ticktock: function(){
+        var d2,
+        d1,
+        current = this.turn,
+        currentcolor = (current.id === this.states.black.id) ?  this.states.black: this.states.white;
+             //new
+            d2=new Date();
+            d1 = currentcolor.time[(currentcolor.time.length) -1];
+            currentcolor.time[currentcolor.time.length -1] = d2-d1;
+    },
+    
+    canMove: function() {
+
         for (var i = 1; i <= this.rows; i++) {
 
             for (var j = 1; j <= this.cols; j++) {
@@ -404,23 +450,7 @@ var reversi = {
         
         return false;
     },
-/*
-    colormove: function(elem, row, col) {
-        
-        var self = this;
-            current = this.turn,
-            currentcolor = (current.id === this.states.black.id) ? this.states.black : this.states.white;
 
-        elem.onmouseover= function(event) {
-                
-                // if have a valid move
-                if (((!self.isValidMove(row, col)) || (!this.isValidPosition(row, col)) )&& (this.isVisibleItem(row, col))) {       
-                    currentcolor= this.states.red;
-                    }
-            //this.setItemState(row, col, currentcolor);
-        };
-    },
-*/
     colortoken: function(row, col){
         var self = this;
             current = this.turn,
@@ -452,41 +482,41 @@ var reversi = {
 
     },
 
-    
     bindMove: function(elem, row, col) {
         
         var self = this;
+       
                
         elem.onclick= function(event) {
-            
             if (self.canMove()) {
-                
+
                 // if have a valid move
-                if (self.isValidMove(row, col)) {
+                if (self.isValidClick(row, col)) {
 
                     // make the move
                     self.move(row, col);
                     
                     // check whether the another player can now move, if not, pass turn back to other player
-                    if ( ! self.canMove()) {
+                    if (!self.canMove()){
                         
                         self.passTurn();
-                        
+                  
+
                         // check the end of the game
-                        if ( ! self.canMove()) {
+                        if (!self.canMove()) {
 
                             self.endGame();
                         }
                     }
-
+                  
                     // in case of full grid, end the game
-                    if (self.checkEnd()) {
-
+                    if (self.checkEnd()){
                         self.endGame();
                     }
                 }
             }
-        };
+        
+    };
         elem.onmouseover= function(event) {
                 self.colortoken(row, col);
         };
@@ -554,6 +584,26 @@ var reversi = {
         return true;
     },
 
+    checkEndByColor: function(lastMove) {
+
+        current = this.turn,
+            rowCheck,
+            colCheck,
+            toCheck = (current.id === this.states.black.id) ? this.states.black : this.states.white;
+        
+        for (var i = 1; i <= this.rows; i++) {
+
+            for (var j = 1; j <= this.cols; j++) {
+                
+                if(this.grid[i][j].state.id === toCheck.id){
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    },
+
     move: function(row, col) {
         
         var finalItems = [],
@@ -600,7 +650,7 @@ var reversi = {
                     if (this.isValidPosition(rowCheck, colCheck) && this.isVisibleItem(rowCheck, colCheck) && this.grid[rowCheck][colCheck].state.id === current.id) {
                         
                         // push the actual item
-                        finalItems.push([row, col]);
+                       // finalItems.push([row, col]);
                         
                         // push each item actual line
                         for (var item in possibleItems) {
@@ -620,22 +670,14 @@ var reversi = {
                 this.setItemState(finalItems[item][0], finalItems[item][1], current);
             }
         }
-        
-        // pass turn to the other player
-        this.setTurn(toCheck);
-        
+
         // recalculate score each turn
         this.recalcuteScore();
-    },
+      
+          // pass turn to the other player
+        this.setTurn(toCheck);
 
-    afterStopGame: function(){
-               // clear items
-               this.clear();
-        
-               // reinit game
-               this.initGame();
-
-
+      
     },
 
     endGameMsg: function(){
@@ -655,6 +697,4 @@ var reversi = {
         alert('turns' + numberOfTurns + ' gametime ' + gameTime);
 
     }
-
-
 };
