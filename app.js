@@ -5,12 +5,14 @@ var reversi = {
 	statisticItems: null,
     rows: 10,
     cols: 10,
+    min: null,
+    sec: null,
     grid: [],
     timeBlack: [],
     timeWhite: [],
     states: {
-        'blank': { 'id' : 0, 'color': 'white', time : [] },
-        'white': { 'id' : 1, 'color': 'white', time : [] },
+        'blank': { 'id' : 0, 'color': 'white'},
+        'white': { 'id' : 1, 'color': 'white'},
         'black': { 'id' : 2, 'color': 'black' },
         'red': { 'id' : 3, 'color': 'red' },
         'green': { 'id' : 4, 'color': 'green' }
@@ -44,14 +46,19 @@ var reversi = {
 	startTimer: function(){
 		var minutesLabel = document.getElementById("minutes");
         var secondsLabel = document.getElementById("seconds");
-		var totalSeconds = 0;
-		setInterval(setTime, 1000);
+        var totalSeconds = 0;
+        var self = this;
+        setInterval(setTime, 1000);
+       
 
 		function setTime() {
-		++totalSeconds;
-		secondsLabel.innerHTML = pad(totalSeconds % 60);
-        minutesLabel.innerHTML = pad(parseInt(totalSeconds / 60));
-        
+        ++totalSeconds;
+        self.sec = pad(totalSeconds % 60);
+        self.min = pad(parseInt(totalSeconds / 60));
+		secondsLabel.innerHTML = self.sec;
+        minutesLabel.innerHTML = self.min;
+       
+
 		}
 
 		function pad(val) {
@@ -66,33 +73,40 @@ var reversi = {
     
     initGame: function() {
         
-        //set number of turns
-        this.setTurnNum(0);
-        //start the timer
-        this.startTimer();
-       
+         // the black player begins the game
+         this.setTurn(this.states.black);
 
-        // the black player begins the game
-        this.setTurn(this.states.black);
-        
+             
         // init placement
         this.setItemState(6, 6, this.states.white);
         this.setItemState(6, 5, this.states.black);
         this.setItemState(5, 6, this.states.black);
         this.setItemState(5, 5, this.states.white);
         
+        this.initStatistic();
+          
+    },
+
+    initStatistic: function(){
+         //set number of turns
+         this.setTurnNum(0);
+         //start the timer
+         this.startTimer();
+         //init 2 disc
+         this.setTwoDisc(1);
+         //init avg turn time 
+         this.setAvgTime(1);
         // set initial score
         this.setScore(2, 2);
     },
     
     passTurn: function() {
     
-        var turn = (this.turn.id === this.states.black.id) ? this.states.white : this.states.black,
-        d1 = new Date();
+        var turn = (this.turn.id === this.states.black.id) ? this.states.white : this.states.black;
 
-        this.setTurn(turn);	
-        
-        turn.time.push(d1);
+     
+        this.setTurn(turn);
+        	
     },
     
     setTurn: function(state) {
@@ -100,10 +114,16 @@ var reversi = {
         this.turn = state;
 
         var isBlack = (state.id === this.states.black.id);
+                
         
+    
         this.score.black.elem.style.textDecoration = isBlack ? 'underline': '';
 		this.score.white.elem.style.textDecoration = isBlack ? '': 'underline';
         this.setTurnNum(1);
+        this.tick();
+        this.setTwoDisc(0);
+        
+        
     },
     
     initItemState: function(elem) {
@@ -142,17 +162,20 @@ var reversi = {
     },
 
     stopGame: function(){
+    
+        var self = this;
+        // 1. Create the button
+        var button = document.createElement("button");
+        button.innerHTML = "END GAME";
 
-    // 1. Create the button
-    var button = document.createElement("button");
-    button.innerHTML = "END GAME";
+        // 2. Append somewhere
+        var body = document.getElementsByTagName("body")[0];
+        body.appendChild(button);
 
-    // 2. Append somewhere
-    var body = document.getElementsByTagName("body")[0];
-    body.appendChild(button);
-
-    // 3. Add event handler
-    button.addEventListener ("click", this.endGameMsg());
+        // 3. Add event handler
+        button.onclick = function(event){
+            self.endGameMsg();           
+        };
     },
     
     prepareGrid: function() {
@@ -197,8 +220,8 @@ var reversi = {
 			scoreWhite = document.createElement('span'),
 			
 			turns = document.createElement('span'),
-			time = document.createElement('span'),
-			avgTimePerTurn = document.createElement('span'),
+			avgTimeWhite = document.createElement('span'),
+			avgTimeBlack = document.createElement('span'),
 			twoDiscBlack = document.createElement('span'),
 			twoDiscWhite = document.createElement('span');
 			
@@ -207,8 +230,8 @@ var reversi = {
 		    scoreWhite.className = 'score-node score-white';
 
             turns.className = 'statistic-node';
-            time.className = 'statistic-node';
-            avgTimePerTurn.className = 'statistic-node';
+            avgTimeWhite.className = 'statistic-node';
+            avgTimeBlack.className = 'statistic-node';
             twoDiscBlack.className = 'statistic-node TWO-node';
             twoDiscWhite.className = 'statistic-node TWO-node';
 
@@ -219,8 +242,8 @@ var reversi = {
 		
 		//append statistic
 		statistic.appendChild(turns);
-		statistic.appendChild(time);
-		statistic.appendChild(avgTimePerTurn);
+		statistic.appendChild(avgTimeBlack);
+		statistic.appendChild(avgTimeWhite);
 		statistic.appendChild(twoDiscBlack);
 		statistic.appendChild(twoDiscWhite);
         
@@ -255,6 +278,14 @@ var reversi = {
             'twoDiscWhite':{
                 'elem' :twoDiscWhite,
                 'state' :1
+            },
+            'avgTimeWhite':{
+                'elem' :avgTimeWhite,
+                'state' :0
+            },
+            'avgTimeBlack':{
+                'elem' :avgTimeBlack,
+                'state' :0
             }
 
 		}
@@ -288,7 +319,7 @@ var reversi = {
         }
         
         this.setScore(scoreBlack, scoreWhite);
-        this.setTwoDisc();
+       
 
 	},
 	
@@ -302,21 +333,27 @@ var reversi = {
 
     },
     
-    setTwoDisc: function(){
+    setTwoDisc: function(start){
         
         var isBlack = (this.turn.id === this.states.black.id);
-        
-        if(isBlack)
-        {
-            if(this.score.black.state == 2) {this.statisticItems.twoDiscBlack.state++};
+
+        if(start == 1){
+            this.statisticItems.twoDiscBlack.state=2;
+            this.statisticItems.twoDiscWhite.state=2;
         }
-        else
-        {
-            if( this.score.white.state == 2) {this.statisticItems.twoDiscWhite.state++};
-        } 
-        
+        else{
+            if(isBlack)
+            {
+                if(this.score.black.state == 2) {this.statisticItems.twoDiscBlack.state++};
+            }
+            else
+            {
+                if( this.score.white.state == 2) {this.statisticItems.twoDiscWhite.state++};
+            } 
+        }   
         this.statisticItems.twoDiscWhite.elem.innerHTML = 'TWO DISC FOR WHITE: ' + this.statisticItems.twoDiscWhite.state;
         this.statisticItems.twoDiscBlack.elem.innerHTML = 'TWO DISC FOR BLACK: ' + this.statisticItems.twoDiscBlack.state;
+       
     },
 	
 	setTurnNum: function(counting) {
@@ -327,7 +364,7 @@ var reversi = {
 		number = this.statisticItems.turns.state + 1;
         }
         else{
-            number = -1;   
+            number = 0;   
         }
         this.statisticItems.turns.state = number;
         this.statisticItems.turns.elem.innerHTML = '&nbsp;' + number + '&nbsp;';
@@ -379,9 +416,6 @@ var reversi = {
         var current = this.turn,
             rowCheck,
             colCheck;
-        
-            
-       this.ticktock();
             
         //check if there is no current turn color in the borad --> end the game
         if(this.score.black.state === 0 || this.score.white.state === 0){
@@ -425,17 +459,93 @@ var reversi = {
         return false;
     },
 
-    ticktock: function(){
+
+
+    tick: function(){
+        var d1 = Date.now(),
+        self = this,
+        current = self.turn;
+
+        if(current.id === self.states.black.id){
+            self.timeBlack.push(d1);
+        } 
+        else{
+            self.timeWhite.push(d1);
+        }
+    },
+
+    tock: function(){
         var d2,
         d1,
         current = this.turn,
-        currentcolor = (current.id === this.states.black.id) ?  this.states.black: this.states.white;
-             //new
-            d2=new Date();
-            d1 = currentcolor.time[(currentcolor.time.length) -1];
-            currentcolor.time[currentcolor.time.length -1] = d2-d1;
+        currentcolor;
+      
+        d2= Date.now();
+        if(current.id === this.states.black.id){
+            currentcolor = this.timeBlack;
+        } 
+        else{
+            currentcolor = this.timeWhite;
+        }
+          
+            d1 = currentcolor[(currentcolor.length) -1];
+            currentcolor[currentcolor.length -1] = (d2-d1);
+            //console.log( currentcolor[currentcolor.length -1] );
+           
     },
-    
+
+    setAvgTime: function(start){
+
+        var whiteAvg =0,
+        blackAvg =0;
+
+        if(start ==1)
+        {
+            this.timeBlack = [];
+            this.timeWhite = [];
+        }
+        else{
+            for (var item in this.timeBlack) {
+                
+                blackAvg +=this.timeBlack[item];
+             }
+             for (var item in this.timeWhite) {
+                     
+                 whiteAvg += this.timeWhite[item];
+             }
+     
+             blackAvg /= this.timeBlack.length;
+             whiteAvg /= this.timeWhite.length;
+        }
+        
+        this.statisticItems.avgTimeWhite.state = whiteAvg;
+        this.statisticItems.avgTimeBlack.state = blackAvg;
+        
+        this.statisticItems.avgTimeWhite.elem.innerHTML = 'avg time per white: ' + this.msToTime(this.statisticItems.avgTimeWhite.state);
+        this.statisticItems.avgTimeBlack.elem.innerHTML = 'avg time per black: ' + this.msToTime(this.statisticItems.avgTimeBlack.state);
+
+    },
+
+    msToTime: function (s) {
+        var ms =0,secs=0,mins=0,hrs=0;
+        
+        
+            ms = s % 1000;
+            s = (s - ms) / 1000;
+            if(s>=60){
+                secs = s % 60;
+                s = (s - secs) / 60;
+                if(s>=60){
+                    mins = s % 60;
+                    hrs = (s - mins) / 60;
+                    return hrs + ':' + mins + ':' + secs + '.' + ms;
+                }
+                return mins + ':' + secs + '.' + ms;
+            }
+      
+        return secs + '.' + ms;
+    },
+
     canMove: function() {
 
         for (var i = 1; i <= this.rows; i++) {
@@ -486,9 +596,12 @@ var reversi = {
     bindMove: function(elem, row, col) {
         
         var self = this;
-       
-               
+  
         elem.onclick= function(event) {
+
+            self.tock();
+            self.setAvgTime(0);
+
             if (self.canMove()) {
 
                 // if have a valid move
@@ -649,9 +762,7 @@ var reversi = {
 
                     // now we need to check that the next item is one of ours
                     if (this.isValidPosition(rowCheck, colCheck) && this.isVisibleItem(rowCheck, colCheck) && this.grid[rowCheck][colCheck].state.id === current.id) {
-                        
-                        // push the actual item
-                       // finalItems.push([row, col]);
+
                         
                         // push each item actual line
                         for (var item in possibleItems) {
@@ -683,19 +794,23 @@ var reversi = {
 
     endGameMsg: function(){
         
-        var numberOfTurns = this.statisticItems.turns.state;
-        var gameTime = this.minutesLabel + ':' + this.secondsLabel;
+        var numberOfTurns = 'number of turns: ' + this.statisticItems.turns.state + ' ';
+        var gameTime = this.min + ':' + this.sec+ ' ';
 
-        var blackAvg;
-        var whiteAvg;
+        var blackAvg = 'Avg turn time: ' + this.msToTime(this.statisticItems.avgTimeBlack.state)+ ' ';
+        var whiteAvg = 'Avg turn time: ' + this.msToTime(this.statisticItems.avgTimeWhite.state)+ ' ';
 
-        var black2Disc = this.statisticItems.twoDiscBlack.state ;
-        var white2Disc = this.statisticItems.twoDiscWhite.state;
 
-        var blackScore = this.score.black.state;
-        var WhiteScore = this.score.white.state;
+        var black2Disc = 'Number of 2 disc: ' + this.statisticItems.twoDiscBlack.state + ' ' ;
+        var white2Disc = 'Number of 2 disc: ' +this.statisticItems.twoDiscWhite.state + ' ';
 
-        alert('turns' + numberOfTurns + ' gametime ' + gameTime);
+        var blackScore = 'Score: ' + this.score.black.state+ ' ';
+        var whiteScore = 'Score: ' + this.score.white.state+ ' ';
+
+        var current = this.turn;
+        var winner = (current.id === this.states.black.id) ? this.states.white.color : this.states.black.color+ ' ';
+
+        alert('THE WINNER IS: '+ winner + '\n' + numberOfTurns +'\n'+gameTime + '\nBlack Statistic:\n'+blackScore+blackAvg+ black2Disc +'\nWhite Statistic:\n'+ whiteScore+whiteAvg+ white2Disc);
 
     }
 };
