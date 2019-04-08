@@ -73,9 +73,9 @@ var reversi = {
     
     initGame: function() {
         
-         // the black player begins the game
-         this.setTurn(this.states.black);
-
+        // the black player begins the game
+        this.setTurn(this.states.black);
+       // this.tick();
              
         // init placement
         this.setItemState(6, 6, this.states.white);
@@ -96,6 +96,7 @@ var reversi = {
          this.setTwoDisc(1);
          //init avg turn time 
          this.setAvgTime(1);
+         this.tick();
         // set initial score
         this.setScore(2, 2);
     },
@@ -121,8 +122,8 @@ var reversi = {
 		this.score.white.elem.style.textDecoration = isBlack ? '': 'underline';
         this.setTurnNum(1);
         this.tick();
-        this.setTwoDisc(0);
         
+        this.setTwoDisc(0);
         
     },
     
@@ -338,8 +339,8 @@ var reversi = {
         var isBlack = (this.turn.id === this.states.black.id);
 
         if(start == 1){
-            this.statisticItems.twoDiscBlack.state=2;
-            this.statisticItems.twoDiscWhite.state=2;
+            this.statisticItems.twoDiscBlack.state=1;
+            this.statisticItems.twoDiscWhite.state=1;
         }
         else{
             if(isBlack)
@@ -462,7 +463,7 @@ var reversi = {
 
 
     tick: function(){
-        var d1 = Date.now(),
+        var d1 =performance.now(),// Date.now(),
         self = this,
         current = self.turn;
 
@@ -480,7 +481,7 @@ var reversi = {
         current = this.turn,
         currentcolor;
       
-        d2= Date.now();
+        d2=performance.now();// Date.now();
         if(current.id === this.states.black.id){
             currentcolor = this.timeBlack;
         } 
@@ -489,13 +490,14 @@ var reversi = {
         }
           
             d1 = currentcolor[(currentcolor.length) -1];
-            currentcolor[currentcolor.length -1] = (d2-d1);
+            currentcolor[currentcolor.length -1] = Math.round((d2-d1)/1000);
+
             //console.log( currentcolor[currentcolor.length -1] );
            
     },
 
     setAvgTime: function(start){
-
+       // debugger;
         var whiteAvg =0,
         blackAvg =0;
 
@@ -513,37 +515,41 @@ var reversi = {
                      
                  whiteAvg += this.timeWhite[item];
              }
-     
-             blackAvg /= this.timeBlack.length;
-             whiteAvg /= this.timeWhite.length;
+             if(this.timeBlack.length>0){
+                blackAvg /= this.timeBlack.length;
+
+             }
+             if(this.timeWhite.length>0){
+                whiteAvg /= this.timeWhite.length;
+             }
+
+             
         }
         
-        this.statisticItems.avgTimeWhite.state = whiteAvg;
-        this.statisticItems.avgTimeBlack.state = blackAvg;
+        this.statisticItems.avgTimeWhite.state = Math.round(whiteAvg);
+        this.statisticItems.avgTimeBlack.state = Math.round(blackAvg);
         
-        this.statisticItems.avgTimeWhite.elem.innerHTML = 'avg time per white: ' + this.msToTime(this.statisticItems.avgTimeWhite.state);
-        this.statisticItems.avgTimeBlack.elem.innerHTML = 'avg time per black: ' + this.msToTime(this.statisticItems.avgTimeBlack.state);
+        this.statisticItems.avgTimeWhite.elem.innerHTML = 'avg time per white: ' + this.secToTime( this.statisticItems.avgTimeWhite.state);//(this.statisticItems.avgTimeWhite.state));
+        this.statisticItems.avgTimeBlack.elem.innerHTML = 'avg time per black: ' + this.secToTime(this.statisticItems.avgTimeBlack.state);//(this.statisticItems.avgTimeBlack.state));
 
     },
 
-    msToTime: function (s) {
-        var ms =0,secs=0,mins=0,hrs=0;
-        
-        
-            ms = s % 1000;
-            s = (s - ms) / 1000;
+    secToTime: function (s) {
+        var mins=0,hrs=0;
+            
             if(s>=60){
-                secs = s % 60;
-                s = (s - secs) / 60;
-                if(s>=60){
-                    mins = s % 60;
-                    hrs = (s - mins) / 60;
-                    return hrs + ':' + mins + ':' + secs + '.' + ms;
+                mins = Math.round(s / 60);
+                s=s%60;
+                if(mins>=60){
+                    hrs = Math.round(mins / 60);
+                    mins=mins%60;
+                    return hrs + ':' + mins + ':' + s;
                 }
-                return mins + ':' + secs + '.' + ms;
+                return mins + ':' + s ;
             }
+            
       
-        return secs + '.' + ms;
+        return s+ 'SEC';
     },
 
     canMove: function() {
@@ -599,13 +605,14 @@ var reversi = {
   
         elem.onclick= function(event) {
 
-            self.tock();
-            self.setAvgTime(0);
-
             if (self.canMove()) {
 
                 // if have a valid move
                 if (self.isValidClick(row, col)) {
+
+                    
+                    self.tock();
+                    self.setAvgTime(0);
 
                     // make the move
                     self.move(row, col);
