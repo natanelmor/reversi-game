@@ -40,6 +40,7 @@ var reversi = {
         this.initGame();
         
         this.stopGame();
+        
 
 
     },
@@ -120,9 +121,7 @@ var reversi = {
         this.turn = state;
 
         var isBlack = (state.id === this.states.black.id);
-                
-        
-    
+  
         this.score.black.elem.style.textDecoration = isBlack ? 'underline': '';
 		this.score.white.elem.style.textDecoration = isBlack ? '': 'underline';
         this.setTurnNum(1);
@@ -180,7 +179,26 @@ var reversi = {
 
         // 3. Add event handler
         button.onclick = function(event){
-            self.endGameMsg(1);           
+            self.endGameMsg(1);  
+            //self.startGame();      
+        };
+    },
+
+    startGame: function(){
+    
+        var self = this;
+        // 1. Create the button
+        var button = document.createElement("button");
+        button.innerHTML = "START NEW GAME";
+        button.style.backgroundColor='green';
+
+     
+       //var body = document.getElementsByTagName("")[0];       
+        this.father.appendChild(button);
+
+        // 3. Add event handler
+        button.onclick = function(event){ 
+          location.reload();        
         };
     },
     
@@ -823,6 +841,6 @@ var reversi = {
         }
 
         alert('THE WINNER IS: '+ winner + '\n' + numberOfTurns +'\n'+gameTime + '\nBlack Statistic:\n'+blackScore+blackAvg+ black2Disc +'\nWhite Statistic:\n'+ whiteScore+whiteAvg+ white2Disc);
-
+        this.startGame();
     }
 };

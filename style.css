@@ -63,6 +63,7 @@ button:hover {
   background: salmon;
 }
 
+
 .reversi .score-node {
     display: inline-block;
     width: 125px;
@@ -83,3 +84,4 @@ button:hover {
 .reversi .score-white {
     color: white;
 }
+
