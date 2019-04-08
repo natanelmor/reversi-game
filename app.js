@@ -825,15 +825,15 @@ var reversi = {
 
     endGameMsg: function(res){
         
-        var numberOfTurns = 'number of turns: ' + this.statisticItems.turns.state + ' ';
-        var gameTime = this.min + ':' + this.sec+ ' ';
+        var numberOfTurns = 'No. of turns: ' + this.statisticItems.turns.state + ' ';
+        var gameTime = 'Game time: ' + this.min + ':' + this.sec+ ' ';
 
-        var blackAvg = 'Avg turn time: ' + this.msToTime(this.statisticItems.avgTimeBlack.state)+ ' ';
-        var whiteAvg = 'Avg turn time: ' + this.msToTime(this.statisticItems.avgTimeWhite.state)+ ' ';
+        var blackAvg = 'Avg turn time: ' + this.secToTime(this.statisticItems.avgTimeBlack.state)+ ' ';
+        var whiteAvg = 'Avg turn time: ' + this.secToTime(this.statisticItems.avgTimeWhite.state)+ ' ';
 
 
-        var black2Disc = 'Number of 2 disc: ' + this.statisticItems.twoDiscBlack.state + ' ' ;
-        var white2Disc = 'Number of 2 disc: ' +this.statisticItems.twoDiscWhite.state + ' ';
+        var black2Disc = 'No. of 2 disc: ' + this.statisticItems.twoDiscBlack.state + ' ' ;
+        var white2Disc = 'No. of 2 disc: ' +this.statisticItems.twoDiscWhite.state + ' ';
 
         var blackScore = 'Score: ' + this.score.black.state+ ' ';
         var whiteScore = 'Score: ' + this.score.white.state+ ' ';
