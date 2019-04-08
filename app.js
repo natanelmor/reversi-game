@@ -10,6 +10,7 @@ var reversi = {
     grid: [],
     timeBlack: [],
     timeWhite: [],
+    timerVar: null,
     states: {
         'blank': { 'id' : 0, 'color': 'white'},
         'white': { 'id' : 1, 'color': 'white'},
@@ -41,14 +42,18 @@ var reversi = {
         this.stopGame();
 
 
-	},
+    },
+    
+    stopTimer: function() {
+        clearInterval(this.timerVar);
+    },
 	
 	startTimer: function(){
 		var minutesLabel = document.getElementById("minutes");
         var secondsLabel = document.getElementById("seconds");
         var totalSeconds = 0;
         var self = this;
-        setInterval(setTime, 1000);
+        this.timerVar = setInterval(setTime, 1000);
        
 
 		function setTime() {
@@ -91,6 +96,7 @@ var reversi = {
          //set number of turns
          this.setTurnNum(0);
          //start the timer
+        this.stopTimer();
          this.startTimer();
          //init 2 disc
          this.setTwoDisc(1);
@@ -174,7 +180,7 @@ var reversi = {
 
         // 3. Add event handler
         button.onclick = function(event){
-            self.endGameMsg();           
+            self.endGameMsg(1);           
         };
     },
     
@@ -338,8 +344,8 @@ var reversi = {
         var isBlack = (this.turn.id === this.states.black.id);
 
         if(start == 1){
-            this.statisticItems.twoDiscBlack.state=2;
-            this.statisticItems.twoDiscWhite.state=2;
+            this.statisticItems.twoDiscBlack.state=1;
+            this.statisticItems.twoDiscWhite.state=1;
         }
         else{
             if(isBlack)
@@ -651,12 +657,12 @@ var reversi = {
         
         switch (result) {
             
-            case 1:  { message = 'Black is the winner'; } break;
-            case -1: { message = 'White is the winner.'; } break;
-            case 0:  { message = 'Remiza.'; } break;
+            case 1:  { message = 'BLACK'; } break;
+            case -1: { message = 'WHITE'; } break;
+            case 0:  { message = 'TIE'; } break;
         }
         
-        alert(message);
+        this.endGameMsg(message);
         
         // reset the game
         this.reset();
@@ -792,7 +798,7 @@ var reversi = {
       
     },
 
-    endGameMsg: function(){
+    endGameMsg: function(res){
         
         var numberOfTurns = 'number of turns: ' + this.statisticItems.turns.state + ' ';
         var gameTime = this.min + ':' + this.sec+ ' ';
@@ -808,7 +814,13 @@ var reversi = {
         var whiteScore = 'Score: ' + this.score.white.state+ ' ';
 
         var current = this.turn;
-        var winner = (current.id === this.states.black.id) ? this.states.white.color : this.states.black.color+ ' ';
+        var winner;
+        if(stop == 1){
+            winner = (current.id === this.states.black.id) ? this.states.white.color : this.states.black.color+ ' ';
+        }
+        else{
+            winner= res;
+        }
 
         alert('THE WINNER IS: '+ winner + '\n' + numberOfTurns +'\n'+gameTime + '\nBlack Statistic:\n'+blackScore+blackAvg+ black2Disc +'\nWhite Statistic:\n'+ whiteScore+whiteAvg+ white2Disc);
 
