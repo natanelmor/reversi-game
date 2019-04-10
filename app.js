@@ -50,21 +50,21 @@ var reversi = {
     },
 	
 	startTimer: function(){
-		var minutesLabel = document.getElementById("minutes");
-        var secondsLabel = document.getElementById("seconds");
+        var timer = scoreBar = document.createElement('div');
+        
+        timer.className = 'timer-node';
+        timer.innerHTML = '00:00';
+		this.father.appendChild(timer);
+        
         var totalSeconds = 0;
         var self = this;
-        this.timerVar = setInterval(setTime, 1000);
-       
+        self.timerVar = setInterval(setTime, 1000);
 
 		function setTime() {
         ++totalSeconds;
         self.sec = pad(totalSeconds % 60);
         self.min = pad(parseInt(totalSeconds / 60));
-		secondsLabel.innerHTML = self.sec;
-        minutesLabel.innerHTML = self.min;
-       
-
+		timer.innerHTML = self.min + ':' + self.sec;
 		}
 
 		function pad(val) {
@@ -180,8 +180,10 @@ var reversi = {
 
         // 3. Add event handler
         button.onclick = function(event){
-            self.endGameMsg(1);  
-            //self.startGame();      
+            var winner = (self.turn.id === self.states.black.id) ? self.states.white.color : self.states.black.color;
+            self.stopTimer();
+            self.endGameMsg(winner);  
+                 
         };
     },
 
@@ -190,12 +192,15 @@ var reversi = {
         var self = this;
         // 1. Create the button
         var button = document.createElement("button");
-        button.innerHTML = "START NEW GAME";
+        button.innerHTML = "NEW GAME";
         button.style.backgroundColor='green';
-
+        button.style.background='green';
+        button.style.border='green';
      
-       //var body = document.getElementsByTagName("")[0];       
-        this.father.appendChild(button);
+        // 2. Append somewhere
+        var body = document.getElementsByTagName("body")[0];
+        body.appendChild(button);
+     
 
         // 3. Add event handler
         button.onclick = function(event){ 
@@ -238,67 +243,71 @@ var reversi = {
 
         // prepare score bar
 		var scoreBar = document.createElement('div'),
-			statistic = document.createElement('div'),
-
-
-            scoreBlack = document.createElement('span'),
-			scoreWhite = document.createElement('span'),
-			
-			turns = document.createElement('span'),
-			avgTimeWhite = document.createElement('span'),
-			avgTimeBlack = document.createElement('span'),
-			twoDiscBlack = document.createElement('span'),
-			twoDiscWhite = document.createElement('span');
-			
+            statistic = document.createElement('div'),
             
-             scoreBlack.className = 'score-node score-black';
-		    scoreWhite.className = 'score-node score-white';
+            white = document.createElement('div'),
+            black = document.createElement('div'),
+
+           
+
+            scoreBlack = document.createElement('div'),
+			scoreWhite = document.createElement('div'),
+			
+			turns = document.createElement('div'),
+			avgTimeWhite = document.createElement('div'),
+			avgTimeBlack = document.createElement('div'),
+			twoDiscBlack = document.createElement('div'),
+			twoDiscWhite = document.createElement('div');
+			
+            white.className = 'white-con';
+            black.className = 'black-con';
+
+            // scoreBlack.className = 'black-con';
+            // avgTimeBlack.className = 'black-con';
+          //  twoDiscBlack.className = 'black-con';
+           
+           // scoreWhite.className = 'white-con';
+           // twoDiscWhite.className = 'white-con';
+           // avgTimeWhite.className = 'white-con';
 
             turns.className = 'statistic-node';
-            avgTimeWhite.className = 'statistic-node';
-            avgTimeBlack.className = 'statistic-node';
-            twoDiscBlack.className = 'statistic-node TWO-node';
-            twoDiscWhite.className = 'statistic-node TWO-node';
-
-
+            
+ 
         // append score bar items
-        scoreBar.appendChild(scoreBlack);
-		scoreBar.appendChild(scoreWhite);
+        black.appendChild(scoreBlack);
+		white.appendChild(scoreWhite);
 		
 		//append statistic
 		statistic.appendChild(turns);
-		statistic.appendChild(avgTimeBlack);
-		statistic.appendChild(avgTimeWhite);
-		statistic.appendChild(twoDiscBlack);
-		statistic.appendChild(twoDiscWhite);
+		black.appendChild(avgTimeBlack);
+		white.appendChild(avgTimeWhite);
+		black.appendChild(twoDiscBlack);
+		white.appendChild(twoDiscWhite);
         
         // append to father
-		this.father.appendChild(scoreBar);
-		this.father.appendChild(statistic);
+		//this.father.appendChild(scoreBar);
+        this.father.appendChild(statistic);
+        this.father.appendChild(white);
+        this.father.appendChild(black);
         
         // set the score object
         this.score = {
-            'black': { 
-                'elem': scoreBlack,
-                'state': 0,
-                'avgTime' :0,
-            },
             'white': { 
                 'elem': scoreWhite,
                 'state': 0,
                 'avgTime' :0,
 			},
-			
+            'black': { 
+                'elem': scoreBlack,
+                'state': 0,
+                'avgTime' :0,
+            },
 		}
 		
 		this.statisticItems = {
 			'turns': {
 				'elem' : turns,
 				'state' : -1
-            },
-            'twoDiscBlack':{
-                'elem' :twoDiscBlack,
-                'state' :1
             },
             'twoDiscWhite':{
                 'elem' :twoDiscWhite,
@@ -307,6 +316,10 @@ var reversi = {
             'avgTimeWhite':{
                 'elem' :avgTimeWhite,
                 'state' :0
+            },
+            'twoDiscBlack':{
+                'elem' :twoDiscBlack,
+                'state' :1
             },
             'avgTimeBlack':{
                 'elem' :avgTimeBlack,
@@ -376,8 +389,8 @@ var reversi = {
                 if( this.score.white.state == 2) {this.statisticItems.twoDiscWhite.state++};
             } 
         }   
-        this.statisticItems.twoDiscWhite.elem.innerHTML = 'TWO DISC FOR WHITE: ' + this.statisticItems.twoDiscWhite.state;
-        this.statisticItems.twoDiscBlack.elem.innerHTML = 'TWO DISC FOR BLACK: ' + this.statisticItems.twoDiscBlack.state;
+        this.statisticItems.twoDiscWhite.elem.innerHTML = '2 disc: ' + this.statisticItems.twoDiscWhite.state;
+        this.statisticItems.twoDiscBlack.elem.innerHTML = '2 disc: ' + this.statisticItems.twoDiscBlack.state;
        
     },
 	
@@ -392,7 +405,7 @@ var reversi = {
             number = 0;   
         }
         this.statisticItems.turns.state = number;
-        this.statisticItems.turns.elem.innerHTML = '&nbsp;' + number + '&nbsp;';
+        this.statisticItems.turns.elem.innerHTML = 'turns: ' + number + '&nbsp;';
 	},
     
     isValidMove: function(row, col) {
@@ -553,8 +566,8 @@ var reversi = {
         this.statisticItems.avgTimeWhite.state = Math.round(whiteAvg);
         this.statisticItems.avgTimeBlack.state = Math.round(blackAvg);
         
-        this.statisticItems.avgTimeWhite.elem.innerHTML = 'avg time per white: ' + this.secToTime( this.statisticItems.avgTimeWhite.state);//(this.statisticItems.avgTimeWhite.state));
-        this.statisticItems.avgTimeBlack.elem.innerHTML = 'avg time per black: ' + this.secToTime(this.statisticItems.avgTimeBlack.state);//(this.statisticItems.avgTimeBlack.state));
+        this.statisticItems.avgTimeWhite.elem.innerHTML = 'avg time: ' + this.secToTime( this.statisticItems.avgTimeWhite.state);
+        this.statisticItems.avgTimeBlack.elem.innerHTML = 'avg time: ' + this.secToTime(this.statisticItems.avgTimeBlack.state);
 
     },
 
@@ -573,7 +586,7 @@ var reversi = {
             }
             
       
-        return s+ 'SEC';
+        return s+ 'sec';
     },
 
     canMove: function() {
@@ -686,11 +699,11 @@ var reversi = {
             case -1: { message = 'WHITE'; } break;
             case 0:  { message = 'TIE'; } break;
         }
-        
+ 
         this.endGameMsg(message);
+        this.stopTimer();
         
-        // reset the game
-        this.reset();
+        
     },
     
     clear: function() {
@@ -839,13 +852,7 @@ var reversi = {
         var whiteScore = 'Score: ' + this.score.white.state+ ' ';
 
         var current = this.turn;
-        var winner;
-        if(stop == 1){
-            winner = (current.id === this.states.black.id) ? this.states.white.color : this.states.black.color+ ' ';
-        }
-        else{
-            winner= res;
-        }
+        var winner= res;
 
         alert('THE WINNER IS: '+ winner + '\n' + numberOfTurns +'\n'+gameTime + '\nBlack Statistic:\n'+blackScore+blackAvg+ black2Disc +'\nWhite Statistic:\n'+ whiteScore+whiteAvg+ white2Disc);
         this.startGame();

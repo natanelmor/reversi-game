@@ -1,5 +1,8 @@
 .reversi table {
-    background: #DDDDDD;
+    background: #DDDDDD;  
+    position: absolute;
+    left: 480px; 
+    top: 350px;  
 }
 
 .reversi td {
@@ -18,70 +21,128 @@
     -moz-border-radius: 20px; 
     -webkit-border-radius: 20px; 
     margin: 5px 0 0 5px;
+     
+    
 }
 
 .reversi .statistic-node {
-    display: inline-block;
-    width: 125px;
-    padding: 10px;
-    font-size: 30px;
-    background-color: lightblue;
-    border-radius: 20px; 
-    -moz-border-radius: 20px; 
-    -webkit-border-radius: 20px;
-    margin: 10px;
-    text-align: center;
-	color: black;
+    -moz-box-shadow: 0px 10px 14px -7px #276873;
+	-webkit-box-shadow: 0px 10px 14px -7px #276873;
+	box-shadow: 0px 10px 14px -7px #276873;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #599bb3), color-stop(1, #408c99));
+	background:-moz-linear-gradient(top, #599bb3 5%, #408c99 100%);
+	background:-webkit-linear-gradient(top, #599bb3 5%, #408c99 100%);
+	background:-o-linear-gradient(top, #599bb3 5%, #408c99 100%);
+	background:-ms-linear-gradient(top, #599bb3 5%, #408c99 100%);
+	background:linear-gradient(to bottom, #599bb3 5%, #408c99 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#599bb3', endColorstr='#408c99',GradientType=0);
+	background-color:#599bb3;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	border-radius:8px;
+	display:inline-block;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:20px;
+	font-weight:bold;
+	padding:13px 32px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #3d768a;
+    position: absolute;
+    left: 615px;  
+    top: 150px; 
 }
 
-.reversi .TWO-node {
-    display: inline-block;
+.reversi .timer-node {
+    -moz-box-shadow: 0px 10px 14px -7px #276873;
+	-webkit-box-shadow: 0px 10px 14px -7px #276873;
+	box-shadow: 0px 10px 14px -7px #276873;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #599bb3), color-stop(1, #408c99));
+	background:-moz-linear-gradient(top, #599bb3 5%, #408c99 100%);
+	background:-webkit-linear-gradient(top, #599bb3 5%, #408c99 100%);
+	background:-o-linear-gradient(top, #599bb3 5%, #408c99 100%);
+	background:-ms-linear-gradient(top, #599bb3 5%, #408c99 100%);
+	background:linear-gradient(to bottom, #599bb3 5%, #408c99 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#599bb3', endColorstr='#408c99',GradientType=0);
+	background-color:#599bb3;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	border-radius:8px;
+	display:inline-block;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:20px;
+	font-weight:bold;
+	padding:13px 32px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #3d768a;
+    position: absolute;
+    left: 630px;  
+    top: 80px; 
+}
+
+.white-con {
+    display: flex;
+    flex-direction: column;
+  background-color: #f1f1f1;
+  color: black;
+  width: 100px;
+  margin: 10px;
+  text-align: center;
+  line-height: 75px;
+  font-size: 20px;
+  width: 150px;
+  padding: 10px;
+  font-family:Arial;
+  position: absolute;
+  left: 800px;  
+  top: 50px; 
+}
+  
+  .black-con {
+    display: flex;
+    flex-direction: column;
+    background-color: black;
     width: 100px;
-    padding: 10px;
-    font-size: 18px;
-    background-color: yellow;
-    border-radius: 20px; 
-    -moz-border-radius: 20px; 
-    -webkit-border-radius: 20px;
     margin: 10px;
     text-align: center;
-	color: black;
-}
+    color: white;
+    line-height: 75px;
+    font-size: 20px;
+    width: 150px;
+    padding: 10px;
+    font-family:Arial;
+    position: absolute;
+    left: 400px;  
+    top: 50px; 
+  }
+
 
 body {
   padding: 20px;
 }
 button {
-  margin-top: 20px;
-  line-height: 60px;
-  font-weight: bold;
-  padding: 0 40px;
-  background: red;
-  border: none;
+    position: absolute;
+    left: 620px;  
+    top: 250px; 
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f24537), color-stop(1, #c62d1f));
+	background:-moz-linear-gradient(top, #f24537 5%, #c62d1f 100%);
+	background:-webkit-linear-gradient(top, #f24537 5%, #c62d1f 100%);
+	background:-o-linear-gradient(top, #f24537 5%, #c62d1f 100%);
+	background:-ms-linear-gradient(top, #f24537 5%, #c62d1f 100%);
+	background:linear-gradient(to bottom, #f24537 5%, #c62d1f 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f24537', endColorstr='#c62d1f',GradientType=0);
+	background-color:#f24537;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	border:1px solid #d02718;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:15px;
+	font-weight:bold;
+	padding:6px 24px;
+	text-decoration:none;
 }
-button:hover {
-  background: salmon;
-}
-
-
-.reversi .score-node {
-    display: inline-block;
-    width: 125px;
-    padding: 10px;
-    font-size: 30px;
-    background: #DDDDDD;
-    border-radius: 20px; 
-    -moz-border-radius: 20px; 
-    -webkit-border-radius: 20px;
-    margin: 10px;
-    text-align: center;
-}
-
-.reversi .score-black {
-    color: black;
-}
-
-.reversi .score-white {
-    color: white;
-}
-
